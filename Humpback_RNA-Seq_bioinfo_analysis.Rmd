@@ -8,7 +8,10 @@ output:
       includes:
        in_header: style/header.html
       df_print: paged
-      theme: united
+      theme: 
+        version: 5
+        bootswatch: simplex #sandstone #zephyr # yeti
+        # primary: "#6CC3D4"
       highlight: pygments
       css: "style/style.css"
       toc: true
@@ -640,7 +643,7 @@ mkdir -p $WORKDIR/Annotation/$JOBNAME && cd $WORKDIR/Annotation/$JOBNAME
 ~/bin/nextflow-22.11.1-edge-all run ~/etc/tools/blast-nf/main.nf --app blastn --dbDir /scratch/project/adna/tools/ncbi_db --dbName $DB --query $WORKDIR/assembly_results/evigene/okayset/all_assembled.okay.mrna --outfmt "6 std stitle staxids ssciname scomname" --options '-evalue 1e-10 -max_target_seqs 20' --chunkSize 2500 --outdir  $WORKDIR/Annotation/$JOBNAME/results --outfileName Mnova_adipose_all_assembled.okay.mrna.refseq.tax.outfmt6  -c ~/.nextflow/bunya.config -profile bunya,apptainer -with-tower
 ```
 
-#### Annotate proteome with DIAMOND
+##### Annotate proteome with DIAMOND
 Despite using `blast-nf`, BLASTp was painfully slow (taking ~80 hours for a chunk of 500 proteins) and therefore an alternative approach was taken using DIAMOND [@buchfinkFastSensitiveProtein2015a], which offers similar accuracy for protein homology searches and produces an identical output to BLASTp, at a much greater speed (up to x1,000 faster). We used the Nextflow-enabled version of DIAMOND (reducing the time to 1.5h for the entire proteome).  
 Considering that we're dealing with a mammalian proteome (similar to well-annotated mammalian species), it may be useful to annotate the proteins against the `swissprot` or `refseq_protein` databases (which contain curated proteins only).
 
@@ -659,7 +662,7 @@ cd $WORKDIR/Annotation/$JOBNAME
 
 ```
 
-#### Functional annotation of proteins
+##### Functional annotation of proteins
 
 The predicted proteins in the transcriptome were further annotated using InterProScan (or [FA-nf](https://github.com/guigolab/FA-nf)) to assign protein families, motifs and ontologies to assist with transcript-to-gene annotation.
 Notice the issues mentioned above with SignalP and TMHMM and a new one for Phobius (see discussions and solutions on [GitHub](https://github.com/nextgenusfs/funannotate/issues/696#issuecomment-1057663190) and [BioStar](https://www.biostars.org/p/238642/))
