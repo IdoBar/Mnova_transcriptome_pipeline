@@ -7,12 +7,13 @@ output:
     bookdown::html_document2:
       includes:
        in_header: style/header.html
+       after_body: style/external-links-js.html
       df_print: paged
       theme: 
         version: 5
-        bootswatch: simplex #sandstone #zephyr # yeti
+        bootswatch: simplex #sandstone #zephyr # yeti # united
         # primary: "#6CC3D4"
-      highlight: pygments
+      highlight: tango
       css: "style/style.css"
       toc: true
       toc_float: true
@@ -303,7 +304,7 @@ rclone copy -P -L --exclude "**work/*" --exclude "**nextflow/*" --exclude "**.ne
 
 #### Transcriptome Assembly with TransPi
 
-A _De-Novo_ transcriptome was assembled from the reads using [TransPi](https://palmuc.github.io/TransPi). In brief, TransPi performs a complete transcriptome assembly, basic annotation and assessment pipeline using well-established methods [@rivera-vicensTransPiComprehensiveTRanscriptome2022]. Detailed information on setting up and configuring TransPi, including detailed code snippets can be found at <https:/idobar.github.io/QX_bioinfo_analysis/index.html>.
+A _De-Novo_ transcriptome was assembled from the reads using [TransPi](https://palmuc.github.io/TransPi). In brief, TransPi performs a complete transcriptome assembly, basic annotation and assessment pipeline using well-established methods [@rivera-vicensTransPiComprehensiveTRanscriptome2022]. Detailed information on setting up and configuring TransPi, including detailed code snippets can be found at <https://idobar.github.io/QX_bioinfo_analysis>.
  
 ```{bash transpi-assemble}
 WORKDIR="/home/ibar/adna/sandbox/OTE14085" # Bunya
@@ -450,7 +451,7 @@ sbatch -a 1-$(cat $JOBNAME-rm-unfix.cmds | wc -l)%10 --job-name=$JOBNAME-rm-unfi
 ```
 
 Now we can run the assembly pipeline (make sure to specify `--min_kmer_cov 2 --min_contig_length 300` for Trinity to reduce the number of temporary files generated)
-Note that we needed to change the `ORP_TRANSRATE` module to use the [ORP Docker container](https://hub.docker.com/r/macmaneslab/orp){target="_blank"} and to make sure it activates the internal `orp` conda environment within the container and disable binding the `/home` folder.
+Note that we needed to change the `ORP_TRANSRATE` module to use the [ORP Docker container](https://hub.docker.com/r/macmaneslab/orp) and to make sure it activates the internal `orp` conda environment within the container and disable binding the `/home` folder.
 
 ```{bash Mnova-denovotranscript2}
 WORKDIR="/scratch/project/adna/sandbox/OTE14085" # Bunya
@@ -508,7 +509,7 @@ rclone copy -P -L --exclude "**work/*" --exclude "**nextflow/*" --exclude "**.lo
 rm -rf $WORKDIR/$JOBNAME/.nextflow* $WORKDIR/$JOBNAME/work
 ```
 
-Or with the [Oyster River Protocol](https://oyster-river-protocol.readthedocs.io/en/latest/index.html){target="_blank"} pipeline [@macmanesOysterRiverProtocol2018a].
+Or with the [Oyster River Protocol](https://oyster-river-protocol.readthedocs.io/en/latest/index.html) pipeline [@macmanesOysterRiverProtocol2018a].
 _ORP fail to run the TransRate step due to a very large assembly size_
 ```{bash orp-assembly}
 # prepare slurm script

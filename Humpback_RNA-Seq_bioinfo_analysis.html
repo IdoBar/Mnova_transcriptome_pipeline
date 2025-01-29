@@ -3092,39 +3092,38 @@ color: #aaaaaa;
 }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
 div.sourceCode
-{ }
+{ background-color: #f8f8f8; }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } 
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.at { color: #7d9029; } 
-code span.bn { color: #40a070; } 
-code span.bu { color: #008000; } 
-code span.cf { color: #007020; font-weight: bold; } 
-code span.ch { color: #4070a0; } 
-code span.cn { color: #880000; } 
-code span.co { color: #60a0b0; font-style: italic; } 
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.do { color: #ba2121; font-style: italic; } 
-code span.dt { color: #902000; } 
-code span.dv { color: #40a070; } 
-code span.er { color: #ff0000; font-weight: bold; } 
+code span.al { color: #ef2929; } 
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.at { color: #204a87; } 
+code span.bn { color: #0000cf; } 
+code span.cf { color: #204a87; font-weight: bold; } 
+code span.ch { color: #4e9a06; } 
+code span.cn { color: #8f5902; } 
+code span.co { color: #8f5902; font-style: italic; } 
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.dt { color: #204a87; } 
+code span.dv { color: #0000cf; } 
+code span.er { color: #a40000; font-weight: bold; } 
 code span.ex { } 
-code span.fl { color: #40a070; } 
-code span.fu { color: #06287e; } 
-code span.im { color: #008000; font-weight: bold; } 
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
-code span.kw { color: #007020; font-weight: bold; } 
-code span.op { color: #666666; } 
-code span.ot { color: #007020; } 
-code span.pp { color: #bc7a00; } 
-code span.sc { color: #4070a0; } 
-code span.ss { color: #bb6688; } 
-code span.st { color: #4070a0; } 
-code span.va { color: #19177c; } 
-code span.vs { color: #4070a0; } 
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.fl { color: #0000cf; } 
+code span.fu { color: #204a87; font-weight: bold; } 
+code span.im { } 
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } 
+code span.kw { color: #204a87; font-weight: bold; } 
+code span.op { color: #ce5c00; font-weight: bold; } 
+code span.ot { color: #8f5902; } 
+code span.pp { color: #8f5902; font-style: italic; } 
+code span.sc { color: #ce5c00; font-weight: bold; } 
+code span.ss { color: #4e9a06; } 
+code span.st { color: #4e9a06; } 
+code span.va { color: #000000; } 
+code span.vs { color: #4e9a06; } 
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } 
 .sourceCode .row {
 width: 100%;
 }
@@ -3621,7 +3620,7 @@ Notice the issues mentioned above with SignalP and TMHMM and a new one for Phobi
 <span id="cb8-66"><a href="#cb8-66" tabindex="-1"></a><span class="ex">rclone</span> copy <span class="at">-P</span> <span class="at">-L</span> <span class="at">--exclude</span> <span class="st">&quot;**work/*&quot;</span> <span class="at">--exclude</span> <span class="st">&quot;**nextflow/*&quot;</span> <span class="at">--exclude</span> <span class="st">&quot;**.nextflow*&quot;</span> Mnova_genome GURS_shared:Erika_Whale_fasting_genomics/OTE14085/Mnova_genome</span></code></pre></div>
 <div id="transcriptome-assembly-with-transpi" class="section level4">
 <h4>Transcriptome Assembly with TransPi</h4>
-<p>A <em>De-Novo</em> transcriptome was assembled from the reads using <a href="https://palmuc.github.io/TransPi">TransPi</a>. In brief, TransPi performs a complete transcriptome assembly, basic annotation and assessment pipeline using well-established methods <span class="citation">(Rivera-Vicéns <em>et al.</em> 2022)</span>. Detailed information on setting up and configuring TransPi, including detailed code snippets can be found at <a href="https:/idobar.github.io/QX_bioinfo_analysis/index.html" class="uri">https:/idobar.github.io/QX_bioinfo_analysis/index.html</a>.</p>
+<p>A <em>De-Novo</em> transcriptome was assembled from the reads using <a href="https://palmuc.github.io/TransPi">TransPi</a>. In brief, TransPi performs a complete transcriptome assembly, basic annotation and assessment pipeline using well-established methods <span class="citation">(Rivera-Vicéns <em>et al.</em> 2022)</span>. Detailed information on setting up and configuring TransPi, including detailed code snippets can be found at <a href="https://idobar.github.io/QX_bioinfo_analysis" class="uri">https://idobar.github.io/QX_bioinfo_analysis</a>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="va">WORKDIR</span><span class="op">=</span><span class="st">&quot;/home/ibar/adna/sandbox/OTE14085&quot;</span> <span class="co"># Bunya</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="va">CONDA_NAME</span><span class="op">=</span><span class="st">&quot;genomics&quot;</span></span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="va">SAMPLING_RATE</span><span class="op">=</span>0.5</span>
@@ -3753,7 +3752,7 @@ Notice the issues mentioned above with SignalP and TMHMM and a new one for Phobi
 <span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a></span>
 <span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">-a</span> 1-<span class="va">$(</span><span class="fu">cat</span> <span class="va">$JOBNAME</span>-rm-unfix.cmds <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span><span class="va">)</span>%10 <span class="at">--job-name</span><span class="op">=</span><span class="va">$JOBNAME</span>-rm-unfix <span class="at">--cpus-per-task</span><span class="op">=</span><span class="va">$NCORES</span> <span class="at">--mem</span><span class="op">=</span><span class="va">${MEM}</span>G <span class="at">--time</span><span class="op">=</span><span class="va">$WALLTIME</span> <span class="at">--export</span><span class="op">=</span>ALL,PATH=<span class="va">$PATH</span>,CMDS_FILE=<span class="va">$JOBNAME</span>-rm-unfix.cmds,CONDA_NAME=<span class="va">$CONDA_NAME</span> ~/bin/array.slurm</span></code></pre></div>
 <p>Now we can run the assembly pipeline (make sure to specify <code>--min_kmer_cov 2 --min_contig_length 300</code> for Trinity to reduce the number of temporary files generated)
-Note that we needed to change the <code>ORP_TRANSRATE</code> module to use the <a href="https://hub.docker.com/r/macmaneslab/orp" target="_blank">ORP Docker container</a> and to make sure it activates the internal <code>orp</code> conda environment within the container and disable binding the <code>/home</code> folder.</p>
+Note that we needed to change the <code>ORP_TRANSRATE</code> module to use the <a href="https://hub.docker.com/r/macmaneslab/orp">ORP Docker container</a> and to make sure it activates the internal <code>orp</code> conda environment within the container and disable binding the <code>/home</code> folder.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="va">WORKDIR</span><span class="op">=</span><span class="st">&quot;/scratch/project/adna/sandbox/OTE14085&quot;</span> <span class="co"># Bunya</span></span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># update nextflow (v24.04.4) and nf-core tools (v3.0.2)</span></span>
 <span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co"># aria2c -x5 -d ~/bin/ https://github.com/nextflow-io/nextflow/releases/download/v24.04.4/nextflow-24.04.4-all &amp;&amp; chmod +x ~/bin/nextflow-24.04.4-all</span></span>
@@ -3807,7 +3806,7 @@ Note that we needed to change the <code>ORP_TRANSRATE</code> module to use the <
 <span id="cb12-51"><a href="#cb12-51" tabindex="-1"></a><span class="co"># upload results to Erika&#39;s Sharepoint</span></span>
 <span id="cb12-52"><a href="#cb12-52" tabindex="-1"></a><span class="ex">rclone</span> copy <span class="at">-P</span> <span class="at">-L</span> <span class="at">--exclude</span> <span class="st">&quot;**work/*&quot;</span> <span class="at">--exclude</span> <span class="st">&quot;**nextflow/*&quot;</span> <span class="at">--exclude</span> <span class="st">&quot;**.log*&quot;</span> <span class="va">$WORKDIR</span>/<span class="va">$JOBNAME</span> Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085/<span class="va">$JOBNAME</span></span>
 <span id="cb12-53"><a href="#cb12-53" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> <span class="va">$WORKDIR</span>/<span class="va">$JOBNAME</span>/.nextflow<span class="pp">*</span> <span class="va">$WORKDIR</span>/<span class="va">$JOBNAME</span>/work</span></code></pre></div>
-<p>Or with the <a href="https://oyster-river-protocol.readthedocs.io/en/latest/index.html" target="_blank">Oyster River Protocol</a> pipeline <span class="citation">(MacManes 2018)</span>.
+<p>Or with the <a href="https://oyster-river-protocol.readthedocs.io/en/latest/index.html">Oyster River Protocol</a> pipeline <span class="citation">(MacManes 2018)</span>.
 <em>ORP fail to run the TransRate step due to a very large assembly size</em></p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># prepare slurm script</span></span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="va">WORKDIR</span><span class="op">=</span><span class="st">&quot;/scratch/project/adna/sandbox/OTE14085&quot;</span></span>
@@ -4042,7 +4041,7 @@ Notice the issues mentioned above with SignalP and TMHMM and a new one for Phobi
 </div>
 <div id="general-information" class="section level2">
 <h2>General information</h2>
-<p>This document was last updated at 2025-01-29 23:27:45 using R Markdown (built with R version 4.2.1 (2022-06-23 ucrt)). The source code for this webpage can be found at <a href="https://github.com/IdoBar/Mnova_transcriptome_pipeline" class="uri">https://github.com/IdoBar/Mnova_transcriptome_pipeline</a> (or via the GitHub logo at the top right corner of this page).</p>
+<p>This document was last updated at 2025-01-29 23:58:29 using R Markdown (built with R version 4.2.1 (2022-06-23 ucrt)). The source code for this webpage can be found at <a href="https://github.com/IdoBar/Mnova_transcriptome_pipeline" class="uri">https://github.com/IdoBar/Mnova_transcriptome_pipeline</a> (or via the GitHub logo at the top right corner of this page).</p>
 <p>Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. It is especially powerful at authoring documents and reports which include code and can execute code and use the results in the output. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>, <a href="https://bookdown.org/yihui/rmarkdown/">R Markdown: The Definitive Guide</a> and <a href="https://rstudio.github.io/cheatsheets/html/rmarkdown.html">Rmarkdown cheatsheet</a>.</p>
 <hr />
 </div>
@@ -4092,6 +4091,24 @@ Trapnell C, Hendrickson DG, Sauvageau M, et al. (2013) Differential analysis of 
 </div>
 </div>
 
+<script type="text/javascript">
+(function() {
+  var links = document.getElementsByTagName('a'), link, n, child;
+  for (var i = 0; i < links.length; i++) {
+    link = links[i];
+    if (/^(https?:)?\/\//.test(link.getAttribute('href'))) {
+      link.target = '__blank';
+      n = link.childElementCount;
+      if (n === 0 && link.innerText) {
+        link.innerHTML += ' &boxbox;';  // pure text
+      } else if (n === 2) {
+        // the page /formats.html
+        child = link.firstElementChild;
+        if (child.className === 'formatName') child.innerHTML += ' &boxbox;';
+      }
+    }
+  }
+})();</script>
 
 
 </div>
