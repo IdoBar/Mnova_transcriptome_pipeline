@@ -40,11 +40,11 @@ pacman::p_load(char = basename(fav_packages))
 
 ## Aims
 
--   Identify genes that play a role in the fasting during migration of Humpback whales (_Megaptera novaeangliae_) through differential gene expression between North and South migrating whales     
+-   Identify genes that play a role in metabolism and body condition during migration of Humpback whales (_Megaptera novaeangliae_) through differential gene expression between North and South migrating whales     
 
 ### Objectives
 
-1. Identify genes that play a role in the fasting during migration of Humpback whales (_Megaptera novaeangliae_) through differential gene expression between North and South migrating whales  
+1. Identify genes that play a role in metabolism and body condition during migration of Humpback whales (_Megaptera novaeangliae_) through differential gene expression between North and South migrating whales  
 2. Assemble the _Megaptera novaeangliae_ adipose tissue transcriptome
 
 
@@ -288,11 +288,11 @@ JOB_ID=$(sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time
 
 #### Annotate transcriptome with BLAST
 
-The assembled genome-fuided transcriptome was annotated using BLASTn v2.16.0 [@camachoBLASTArchitectureApplications2009] against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. Considering that we're dealing with a plant transcriptome (hopefully similar to well-annotated plant species), it may also be useful to annotate the transcripts against the `refseq_rna` database (which only contains curated gene transcripts).  
-BLASTn was run with [blast-nf](https://github.com/IdoBar/nf-blast.git) v0.4.2, a Nextflow pipeline that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster. 
+The assembled genome-guided transcriptome was annotated using BLASTn v2.16.0 [@camachoBLASTArchitectureApplications2009] against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. Considering that we're dealing with a plant transcriptome (hopefully similar to well-annotated plant species), it may also be useful to annotate the transcripts against the `refseq_rna` database (which only contains curated gene transcripts).  
+BLASTn was run with [nf-blast](https://github.com/IdoBar/nf-blast.git) v0.4.2, a Nextflow pipeline that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster. 
 
 
-```{bash blast-nf-nt}
+```{bash nf-blast-nt}
 ASS="Mnova_ref_based_assembly"
 WORKDIR="/scratch/project/adna/sandbox/OTE14085/$ASS"
 TRANS="$WORKDIR/${ASS}_stringtie_merged.orfanage.mrna.fna"
@@ -313,7 +313,7 @@ ARRAY_ID=$(sbatch -a 1-$(cat $JOBNAME.cmds | wc -l) --job-name=$JOBNAME --cpus-p
 ```
 
 #### Annotate proteome with DIAMOND
-Despite using `blast-nf`, BLASTp was painfully slow to annotate the predicted proteome (taking ~80 hours for a chunk of 500 proteins) and therefore an alternative approach was taken using DIAMOND v2.1.10 [@buchfinkFastSensitiveProtein2015a], which offers similar accuracy for protein homology searches and produces an identical output to BLASTp, at a much greater speed (up to x1,000 faster). We adapted the `blast-nf` Nextflow pipeline to use DIAMOND (reducing the time to 1.5h for the entire proteome) to search against the NCBI non-redundant protein database (`nr`) to achieve more accurate species-specific annotations. Again, it may also be useful to annotate the proteins against the curated `refseq_protein` database.
+Despite using `nf-blast`, BLASTp was painfully slow to annotate the predicted proteome (taking ~80 hours for a chunk of 500 proteins) and therefore an alternative approach was taken using DIAMOND v2.1.10 [@buchfinkFastSensitiveProtein2015a], which offers similar accuracy for protein homology searches and produces an identical output to BLASTp, at a much greater speed (up to x1,000 faster). We adapted the `nf-blast` Nextflow pipeline to use DIAMOND (reducing the time to 1.5h for the entire proteome) to search against the NCBI non-redundant protein database (`nr`) to achieve more accurate species-specific annotations. Again, it may also be useful to annotate the proteins against the curated `refseq_protein` database.
 
 ```{bash prot-diamond-nf}
 start_long_interactive_job # to be able to use apptainer to download images
@@ -351,68 +351,58 @@ NCORES=12
 MEM=96
 WALLTIME=50:00:00
 # annotate proteins 
-WORKDIR="/home/ibar/adna/sandbox/OTE14085/Mnova_genome"
+ASS="Mnova_ref_based_assembly"
+WORKDIR="/scratch/project/adna/sandbox/OTE14085/$ASS"
+PROT="$WORKDIR/${ASS}_stringtie_merged.orfanage.prots.faa"
+
 cd $WORKDIR/Annotation
 JOBNAME="Mnova_prot_ipscan"
-mkdir -p $WORKDIR/Annotation/$JOBNAME
+
 # prepare the commands (don't forget to remove the asterisk at the end of the proteins!)
-ls -1 $WORKDIR/GIU3625_Humpback_whale.protein.fasta | parallel --dry-run "sed 's/[*]//g' {} > \$TMPDIR/{/} ; apptainer exec -B /home/ibar/scratch/tools -B $WORKDIR/Annotation/$JOBNAME:/output -B \$TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/interproscan_${IPSCAN_VERSION}.sif /opt/interproscan/interproscan.sh -i /temp/{/} -d /output -pa -dp -goterms -f TSV -T /temp -cpu \$SLURM_CPUS_PER_TASK && gawk '\$4~/PANTHER/' $WORKDIR/Annotation/$JOBNAME/{/}.tsv > $WORKDIR/Annotation/$JOBNAME/{/.}.panther.tsv" > $JOBNAME.cmds
+ls -1 $PROT | parallel --dry-run "mkdir -p $WORKDIR/Annotation/$JOBNAME; sed 's/[*]//g' {} > \$TMPDIR/{/} ; apptainer exec -B /home/ibar/scratch/tools -B $WORKDIR/Annotation/$JOBNAME:/output -B \$TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/interproscan_${IPSCAN_VERSION}.sif /opt/interproscan/interproscan.sh -i /temp/{/} -d /output -pa -dp -goterms -f TSV -T /temp -cpu \$SLURM_CPUS_PER_TASK && gawk '\$4~/PANTHER/' $WORKDIR/Annotation/$JOBNAME/{/}.tsv > $WORKDIR/Annotation/$JOBNAME/{/.}.panther.tsv" > $JOBNAME.cmds
 
-# Prepare a general array Slurm script
-echo '#!/bin/bash --login
-#SBATCH --nodes=1
-#SBATCH --ntasks=1
-#SBATCH --output=%x.%A.%a.log'"
-#SBATCH --account=a_agri_genomics
-#SBATCH --partition=general
+# submit to the cluster
+JOB_ID=$(sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time=$WALLTIME --export=ALL,CMDS_FILE=$JOBNAME.cmds,CONDA_NAME=$CONDA_NAME ~/bin/serial_jobs_run.slurm | gawk '{print $4}')
 
-set -Eeo pipefail
-source ~/.bashrc
-conda activate \$CONDA_NAME
-cd \$SLURM_SUBMIT_DIR
-srun gawk -v ARRAY_IND=\$SLURM_ARRAY_TASK_ID 'NR==ARRAY_IND' \$CMDS_FILE | bash" > ~/bin/array.slurm
-chmod +x ~/bin/array.slurm # make it available from any folder
-# submit the job array to the cluster
-sbatch -a 1-$(cat $JOBNAME.cmds | wc -l)%10 --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time=$WALLTIME --export=ALL,CMDS_FILE=$JOBNAME.cmds,CONDA_NAME=base  ~/bin/array.slurm
-
-
-# send results back to Research Space
-rclone copy -P $WORKDIR/Annotation/$JOBNAME GURS_shared:Erika_Whale_fasting_genomics/OTE14085/Mnova_genome/Annotation/$JOBNAME # /Annotation_results/ipscan
+# Copy html files to SharePoint
+rclone copy -P --ignore-checksum --ignore-size --include "**/*.html" $WORKDIR/Annotation "Papaya_genomics:Research Projects/Josh_PhD_Flavour_Genomics/Project_Information/Experiments/RNAseq/Flavour_RNAseq/$ASS/Annotation"
+# Copy files to SharePoint
+rclone copy -P --exclude "**/*.html" $WORKDIR/Annotation "Papaya_genomics:Research Projects/Josh_PhD_Flavour_Genomics/Project_Information/Experiments/RNAseq/Flavour_RNAseq/$ASS/Annotation"
 
 
 ```
 
-_FA-nf pipeline is not yet working!_
-```{bash fa-nf}
-WORKDIR="/home/ibar/adna/sandbox/OTE14085/Mnova_genome"
-cd $WORKDIR/Annotation
-JOBNAME="Mnova_prot_FA-nf"
-mkdir -p $WORKDIR/Annotation/$JOBNAME
+<!-- _FA-nf pipeline is not yet working!_ -->
+<!-- ```{bash fa-nf} -->
+<!-- WORKDIR="/home/ibar/adna/sandbox/OTE14085/Mnova_genome" -->
+<!-- cd $WORKDIR/Annotation -->
+<!-- JOBNAME="Mnova_prot_FA-nf" -->
+<!-- mkdir -p $WORKDIR/Annotation/$JOBNAME -->
 
-# download databases
-cd ~/adna/tools/FA-nf
-# with Nextflow pipeline
-# ~/bin/nextflow-22.11.1-edge-all run download.nf --config params.download.config -profile bunya,apptainer -c ~/.nextflow/bunya.config &> download.logfile
+<!-- # download databases -->
+<!-- cd ~/adna/tools/FA-nf -->
+<!-- # with Nextflow pipeline -->
+<!-- # ~/bin/nextflow-22.11.1-edge-all run download.nf --config params.download.config -profile bunya,apptainer -c ~/.nextflow/bunya.config &> download.logfile -->
 
-# manually download dbs
-mkdir -p ~/adna/tools/FA-nf/DBs/kegg && cd ~/adna/tools/FA-nf/DBs/kegg
+<!-- # manually download dbs -->
+<!-- mkdir -p ~/adna/tools/FA-nf/DBs/kegg && cd ~/adna/tools/FA-nf/DBs/kegg -->
 
-aria2c -x5 https://www.genome.jp/ftp/db/kofam/ko_list.gz && pigz -d ko_list.gz
-aria2c -x5 https://www.genome.jp/ftp/db/kofam/profiles.tar.gz && tar xzf profiles.tar.gz
+<!-- aria2c -x5 https://www.genome.jp/ftp/db/kofam/ko_list.gz && pigz -d ko_list.gz -->
+<!-- aria2c -x5 https://www.genome.jp/ftp/db/kofam/profiles.tar.gz && tar xzf profiles.tar.gz -->
 
-# download and build FA-NF container
-start_long_interactive_job # start interactive job
-apptainer pull $NXF_SINGULARITY_CACHEDIR/guigolab.fa-nf.0.4.0.sif docker://guigolab/fa-nf:0.4.0
-# Process KEGG db
-mkdir -p ~/adna/tools/FA-nf/DBs/kegg/ko_store
-apptainer exec -B /home/ibar/adna/tools -B $WORKDIR/Annotation/$JOBNAME:/output -B \$TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/guigolab.fa-nf.0.4.0.sif bulkDownloadKEGG.pl ko_list ko_store
+<!-- # download and build FA-NF container -->
+<!-- start_long_interactive_job # start interactive job -->
+<!-- apptainer pull $NXF_SINGULARITY_CACHEDIR/guigolab.fa-nf.0.4.0.sif docker://guigolab/fa-nf:0.4.0 -->
+<!-- # Process KEGG db -->
+<!-- mkdir -p ~/adna/tools/FA-nf/DBs/kegg/ko_store -->
+<!-- apptainer exec -B /home/ibar/adna/tools -B $WORKDIR/Annotation/$JOBNAME:/output -B \$TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/guigolab.fa-nf.0.4.0.sif bulkDownloadKEGG.pl ko_list ko_store -->
 
-# download GO database
-cd ~/adna/tools/FA-nf/DBs
-aria2c -x5 http://www.geneontology.org/ontology/gene_ontology.obo
+<!-- # download GO database -->
+<!-- cd ~/adna/tools/FA-nf/DBs -->
+<!-- aria2c -x5 http://www.geneontology.org/ontology/gene_ontology.obo -->
 
-~/bin/nextflow-22.11.1-edge-all run ~/adna/tools/FA-nf/download.nf --config ~/adna/tools/FA-nf/params.download.config -profile bunya,apptainer -work-dir $TMPDIR/$JOBNAME/work --proteinFile $WORKDIR/GIU3625_Humpback_whale.protein.fasta --gffFile $WORKDIR/GIU3625_Humpback_whale.annotation.gff.gz --speciesName "M.novaeangliae" --dbname "Mnova"
-```
+<!-- ~/bin/nextflow-22.11.1-edge-all run ~/adna/tools/FA-nf/download.nf --config ~/adna/tools/FA-nf/params.download.config -profile bunya,apptainer -work-dir $TMPDIR/$JOBNAME/work --proteinFile $WORKDIR/GIU3625_Humpback_whale.protein.fasta --gffFile $WORKDIR/GIU3625_Humpback_whale.annotation.gff.gz --speciesName "M.novaeangliae" --dbname "Mnova" -->
+<!-- ``` -->
 
 These annotation tables were uploaded to Griffith Research Space.
 
@@ -852,10 +842,10 @@ sbatch -a 1-$(cat $JOBNAME.cmds | wc -l)%10 --job-name=$JOBNAME --cpus-per-task=
 
 ##### Annotate the assembly
 
-The reference transcriptome was annotated against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. BLASTn was run with `blast-nf`, a Nextflow implementation that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster.   
+The reference transcriptome was annotated against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. BLASTn was run with `nf-blast`, a Nextflow implementation that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster.   
 Considering that we're dealing with a mammalian transcriptome (similar to well-annotated mammalian species), it may be useful to annotate the transcripts against the `refseq` database (which only contains curated gene transcripts).
 
-```{bash denovo-blast-nf-refseq}
+```{bash denovo-nf-blast-refseq}
 # setup environment
 CONDA_NAME="genomics"
 mamba install -n $CONDA_NAME rcorrector agat ncbi-datasets-cli pbgzip google-cloud-sdk awscli
@@ -870,11 +860,11 @@ JOBNAME="nf-blastn-refseq"
 DB="refseq_rna"
 mkdir -p $WORKDIR/Annotation/$JOBNAME && cd $WORKDIR/Annotation/$JOBNAME
 # run Nextflow Blast pipeline
-~/bin/nextflow-22.11.1-edge-all run ~/etc/tools/blast-nf/main.nf --app blastn --dbDir /scratch/project/adna/tools/ncbi_db --dbName $DB --query $WORKDIR/assembly_results/evigene/okayset/all_assembled.okay.mrna --outfmt "6 std stitle staxids ssciname scomname" --options '-evalue 1e-10 -max_target_seqs 20' --chunkSize 2500 --outdir  $WORKDIR/Annotation/$JOBNAME/results --outfileName Mnova_adipose_all_assembled.okay.mrna.refseq.tax.outfmt6  -c ~/.nextflow/bunya.config -profile bunya,apptainer -with-tower
+~/bin/nextflow-22.11.1-edge-all run ~/etc/tools/nf-blast/main.nf --app blastn --dbDir /scratch/project/adna/tools/ncbi_db --dbName $DB --query $WORKDIR/assembly_results/evigene/okayset/all_assembled.okay.mrna --outfmt "6 std stitle staxids ssciname scomname" --options '-evalue 1e-10 -max_target_seqs 20' --chunkSize 2500 --outdir  $WORKDIR/Annotation/$JOBNAME/results --outfileName Mnova_adipose_all_assembled.okay.mrna.refseq.tax.outfmt6  -c ~/.nextflow/bunya.config -profile bunya,apptainer -with-tower
 ```
 
 ##### Annotate proteome with DIAMOND
-Despite using `blast-nf`, BLASTp was painfully slow (taking ~80 hours for a chunk of 500 proteins) and therefore an alternative approach was taken using DIAMOND [@buchfinkFastSensitiveProtein2015a], which offers similar accuracy for protein homology searches and produces an identical output to BLASTp, at a much greater speed (up to x1,000 faster). We used the Nextflow-enabled version of DIAMOND (reducing the time to 1.5h for the entire proteome).  
+Despite using `nf-blast`, BLASTp was painfully slow (taking ~80 hours for a chunk of 500 proteins) and therefore an alternative approach was taken using DIAMOND [@buchfinkFastSensitiveProtein2015a], which offers similar accuracy for protein homology searches and produces an identical output to BLASTp, at a much greater speed (up to x1,000 faster). We used the Nextflow-enabled version of DIAMOND (reducing the time to 1.5h for the entire proteome).  
 Considering that we're dealing with a mammalian proteome (similar to well-annotated mammalian species), it may be useful to annotate the proteins against the `swissprot` or `refseq_protein` databases (which contain curated proteins only).
 
 ```{bash denovo-prot-diamond-nf-refseq}
@@ -972,6 +962,7 @@ rclone copy -P -L --ignore-checksum --ignore-size --include "**/*.html" $WORKDIR
 ```
 
 Expression-based clustering of transcripts was performed with a modified version of  [RapClust](https://github.com/IdoBar/RapClust@patch-2) [@trapnellDifferentialAnalysisGene2013]. 
+*Consider using [Grouper](https://github.com/COMBINE-lab/grouper) instead [@malikGrouperGraphbasedClustering2018]*
 
 ```{bash rapclust}
 CONDA_NAME=genomics
