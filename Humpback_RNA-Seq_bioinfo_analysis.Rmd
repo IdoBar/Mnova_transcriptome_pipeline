@@ -22,7 +22,7 @@ output:
       number_sections: false
       code_folding: hide
 #      keep_md: true
-bibliography: ["style/RNAseq_references.bib", "style/pseudo_counts.bib", "style/trans_assembly_papers.bib", "style/transcriptome_assembly_evaluation.bib",
+bibliography: ["style/RNAseq_references.bib", "style/pseudo_counts.bib", "style/trans_assembly_papers.bib", "style/transcriptome_assembly_evaluation.bib", "style/comparative_genomics.bib",
 "style/whale_genomics.bib"]
 csl: style/springer-basic-improved-author-date-with-italic-et-al-period.csl
 ---
@@ -30,9 +30,9 @@ csl: style/springer-basic-improved-author-date-with-italic-et-al-period.csl
 ```{r setup, include=FALSE}
 devtools::source_gist("7f63547158ecdbacf31b54a58af0d1cc", filename = "util.R")
 knitr::opts_chunk$set(list(echo = TRUE, eval=FALSE, message=FALSE))
-fav_packages <- c('tidyverse', 'rentrez', 'taxonomizr')
+fav_packages <- c('tidyverse')
 # pak::pak(fav_packages)
-pacman::p_load(char = basename(fav_packages))
+pacman::p_load(char = basename(fav_packages), install=FALSE, update=FALSE)
 
 ```
 
