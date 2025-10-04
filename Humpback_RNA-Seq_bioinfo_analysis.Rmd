@@ -1006,7 +1006,7 @@ sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time=$WALLTIM
 All the generated data was copied to a cloud-based storage (Griffith Research Space and SharePoint)
 
 ```{bash rclone-copy}
-WORKDIR=/home/ibar/adna/Oyster_QX_Disease
+WORKDIR="/home/ibar/adna/sandbox/OTE14085"
 rclone copy -P -L --exclude "**work/*" --exclude "**nextflow/*" --exclude "**.nextflow*" --exclude "**/*.html" $WORKDIR Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085
 ```
 
