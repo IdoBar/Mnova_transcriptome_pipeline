@@ -102,7 +102,7 @@ JOB_ID=$(sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time
 ```
 
 #### Assemble reference-guided transcriptome
-The reads were aligned to the reference genome with `HISAT` [@kimGraphbasedGenomeAlignment2019], followed by the reconstruction of transcripts with `StringTie` (or [`PsiCLASS`](https://github.com/splicebox/PsiCLASS)). Transcript and gene counts were generated from the alignments using `featurecounts` [@liaoFeatureCountsEfficientGeneral2014], [`HTSeq-count`](http://htseq.readthedocs.io/en/release_0.9.1/count.html) [@andersHTSeqPythonFramework2015] or `Ballgown`, as detailed in @perteaTranscriptlevelExpressionAnalysis2016. 
+The reads were aligned to the reference genome with `HiSAT2` v2.2.1 [@kimGraphbasedGenomeAlignment2019], followed by the reconstruction of transcripts with `StringTie` v3.0.0. Transcript and gene counts were generated from the alignments using `Ballgown` (implemented in StringTie v3.0.0), as detailed in @perteaTranscriptlevelExpressionAnalysis2016.  
 
 
 ```{bash ref-based-trans}
@@ -190,6 +190,8 @@ ARRAY_ID=$(sbatch -a 1-$(cat $JOBNAME.cmds | wc -l) --job-name=$JOBNAME --cpus-p
 
 ```
  
+The reads were mapped back to the assembled transcriptome using bwa-mem2 (this was done on [Galaxy AU](https://usegalaxy.org.au/)) and based on the alignment rates (~97%), we decided that this reference-based assembly provides a good representation of the transcripts in the samples and we proceeded with it for downstream gene annotation and quantification analyses.
+
 #### MutilQC{#multiqc}
 Quality metrics were collected from the raw read QC and alignment steps and were consolidated into a single, interactive report for each batch using MultiQC v1.21 [@ewelsMultiQCSummarizeAnalysis2016]. 
 
@@ -232,7 +234,7 @@ rclone copy -P --exclude "**/*.html" $WORKDIR/$ASS Erika_PhD:General/Erika_Whale
 rclone copy -P --ignore-checksum --ignore-size --include "**/*.html" $WORKDIR/$ASS Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085/$ASS
 ```
 
-The assembled genome-guided transcriptome was extracted from the reference genome using `gffread` [@perteaGFFUtilitiesGffRead2020]
+The assembled genome-guided transcriptome was extracted from the reference genome using `gffread` v0.12.7 [@perteaGFFUtilitiesGffRead2020]
 
 ```{bash extract-trans}
 CONDA_NAME="ref-trans" # genomics
@@ -257,7 +259,7 @@ JOB_ID=$(sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time
 
 
 #### Predict proteins with ORFanage
-The gene annotation of the assembled transcriptome was 'sanitized' using `gffread` [@perteaGFFUtilitiesGffRead2020], followed by [ORFanage](https://github.com/alevar/ORFanage) to predict open reading frames of proteins (see detailed instructions in the [Documentation](https://orfanage.readthedocs.io/en/latest/user/quickstart.html) and the publication by @varabyouInvestigatingOpenReading2023).  
+The gene annotation of the assembled transcriptome was 'sanitized' using `gffread` v0.12.7 [@perteaGFFUtilitiesGffRead2020], followed by [ORFanage](https://github.com/alevar/ORFanage) v1.2.0 to predict open reading frames of proteins (see detailed instructions in the [Documentation](https://orfanage.readthedocs.io/en/latest/user/quickstart.html) and the publication by @varabyouInvestigatingOpenReading2023).  
 *Consider using [AGAT](https://agat.readthedocs.io/en/latest/agat_for_you.html) to sanitize and convert the gene annotation files `gtf` to `gff`*
 
 ```{bash predict-orf}
@@ -342,7 +344,7 @@ ARRAY_ID=$(sbatch -a 1-$(cat $JOBNAME.cmds | wc -l) --job-name=$JOBNAME --cpus-p
 
 #### Functional annotation of proteins
 
-The predicted proteins in the transcriptome were further annotated using InterProScan (or [FA-nf](https://github.com/guigolab/FA-nf)) to assign protein families, motifs and ontologies to assist with transcript-to-gene annotation.
+The predicted proteins in the transcriptome were further annotated using InterProScan v5.66-98.0 to assign protein families, motifs and ontologies to assist with transcript-to-gene annotation.
 Notice the issues mentioned above with SignalP and TMHMM and a new one for Phobius (see discussions and solutions on [GitHub](https://github.com/nextgenusfs/funannotate/issues/696#issuecomment-1057663190) and [BioStar](https://www.biostars.org/p/238642/))
 
 ```{bash prot-annotation}
@@ -363,11 +365,6 @@ ls -1 $PROT | parallel --dry-run "mkdir -p $WORKDIR/Annotation/$JOBNAME; sed 's/
 
 # submit to the cluster
 JOB_ID=$(sbatch --job-name=$JOBNAME --cpus-per-task=$NCORES --mem=${MEM}G --time=$WALLTIME --export=ALL,CMDS_FILE=$JOBNAME.cmds,CONDA_NAME=$CONDA_NAME ~/bin/serial_jobs_run.slurm | gawk '{print $4}')
-
-# Copy html files to SharePoint
-rclone copy -P --ignore-checksum --ignore-size --include "**/*.html" $WORKDIR/Annotation "Papaya_genomics:Research Projects/Josh_PhD_Flavour_Genomics/Project_Information/Experiments/RNAseq/Flavour_RNAseq/$ASS/Annotation"
-# Copy files to SharePoint
-rclone copy -P --exclude "**/*.html" $WORKDIR/Annotation "Papaya_genomics:Research Projects/Josh_PhD_Flavour_Genomics/Project_Information/Experiments/RNAseq/Flavour_RNAseq/$ASS/Annotation"
 
 
 ```
@@ -404,16 +401,24 @@ rclone copy -P --exclude "**/*.html" $WORKDIR/Annotation "Papaya_genomics:Resear
 <!-- ~/bin/nextflow-22.11.1-edge-all run ~/adna/tools/FA-nf/download.nf --config ~/adna/tools/FA-nf/params.download.config -profile bunya,apptainer -work-dir $TMPDIR/$JOBNAME/work --proteinFile $WORKDIR/GIU3625_Humpback_whale.protein.fasta --gffFile $WORKDIR/GIU3625_Humpback_whale.annotation.gff.gz --speciesName "M.novaeangliae" --dbname "Mnova" -->
 <!-- ``` -->
 
-These annotation tables were uploaded to Griffith Research Space.
+These annotation tables were uploaded to Griffith SharePoint.
 
 ```{bash upload-annotation}
+ASS="Mnova_ref_based_assembly"
+WORKDIR="/scratch/project/adna/sandbox/OTE14085/$ASS"
+# Copy html files to SharePoint
+rclone copy -P --ignore-checksum --ignore-size --include "**/*.html" $WORKDIR/Annotation "Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085/$ASS/Annotation"
 
-rclone copy -P -L --exclude "**work/*" --exclude "**nextflow/*" --exclude "**.nextflow*" Mnova_genome GURS_shared:Erika_Whale_fasting_genomics/OTE14085/Mnova_genome
+# Copy files to SharePoint
+rclone copy -P --exclude "**/*.html" $WORKDIR/Annotation "Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085/$ASS/Annotation"
 ```
+---------------------------------------------
+
+The sections below are experimental and were not included in the published manuscript. They were kept here for reference and record keeping.  
 
 ### De-Novo Transcriptome Assembly and Annotation 
 
-Since the alignment rates to the reference transcriptome were very low (~20-30%), we assembled a _De-Novo_ transcriptome assembly from the samples that should provide a better representation of the actual transcripts. To reduce the computational load, a subset of 25% of the reads from each samples was used.   
+Our first attempt to align the reads against the early published reference genome and predicted transcripts resulted in poor alignment rates (~20-30%). We therefore assembled a _De-Novo_ transcriptome assembly from the samples that should provide a better representation of the actual transcripts. To reduce the computational load, a subset of 25% of the reads from each samples was used.   
 
 ```{bash prep-rnaseq-reads}
 # setup environment
@@ -688,10 +693,10 @@ sbatch $JOBNAME.slurm
 # --busco_lineage mammalia
 # upload results to Erika's Sharepoint
 rclone copy -P -L --exclude "**work/*" --exclude "**nextflow/*" --exclude "**.log*" $WORKDIR/$JOBNAME Erika_PhD:General/Erika_Whale_fasting_genomics/OTE14085/$JOBNAME
-rm -rf $WORKDIR/$JOBNAME/.nextflow* $WORKDIR/$JOBNAME/work
+rm -rf $WORKDIR/$JOBNAME/.nextflow $WORKDIR/$JOBNAME/work
 ```
 
-Or with the [Oyster River Protocol](https://oyster-river-protocol.readthedocs.io/en/latest/index.html) pipeline [@macmanesOysterRiverProtocol2018a].
+The _de-novo_ transcriptome assembly could also be done directly with the [Oyster River Protocol](https://oyster-river-protocol.readthedocs.io/en/latest/index.html) pipeline [@macmanesOysterRiverProtocol2018a].
 
 ```{bash orp-assembly}
 # prepare slurm script
@@ -842,7 +847,7 @@ sbatch -a 1-$(cat $JOBNAME.cmds | wc -l)%10 --job-name=$JOBNAME --cpus-per-task=
 
 ##### Annotate the assembly
 
-The reference transcriptome was annotated against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. BLASTn was run with `nf-blast`, a Nextflow implementation that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster.   
+The reference transcriptome was annotated against the non-redundant nucleotide database of the NCBI (`nt`) to achieve more accurate species-specific annotations. BLASTn v2.16.0 was run with `nf-blast`, a Nextflow implementation that uses a "split-combine" approach to split the input query (entire transcriptome or proteome) to smaller "chunks" that are run in parallel on the HPC cluster.   
 Considering that we're dealing with a mammalian transcriptome (similar to well-annotated mammalian species), it may be useful to annotate the transcripts against the `refseq` database (which only contains curated gene transcripts).
 
 ```{bash denovo-nf-blast-refseq}
@@ -852,7 +857,7 @@ mamba install -n $CONDA_NAME rcorrector agat ncbi-datasets-cli pbgzip google-clo
 # download recent BLAST databases (if needed)
 start_interactive_job
 cd /scratch/project/adna/tools/ncbi_db # on Bunya
-apptainer exec -B /home/ibar/adna/tools  -B $TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/ncbi-blast-latest.img update_blastdb.pl --decompress --verbose --source gcp --num_threads $SLURM_CPUS_PER_TASK swissprot refseq_protein refseq_rna
+apptainer exec -B /home/ibar/adna/tools  -B $TMPDIR:/temp $NXF_SINGULARITY_CACHEDIR/ncbi-blast-latest.img update_blastdb.pl --decompress --verbose --source ncbi --num_threads 0 swissprot refseq_protein refseq_rna
 exit # quit interactive job
 WORKDIR="/scratch/project/adna/sandbox/OTE14085/Mnova_denovotranscript2"
 
